@@ -1,0 +1,17 @@
+# This job will calculate pi to 2000 decimal places (5 times, with 2 pods running in parallel)
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi # The name of the job uniquely identifies the job within the namespace.
+spec:
+  completions: 5  # The number of finished pods required to mark the job as complete
+  parallelism: 2  # The number of pods that should run in parallel
+  template:
+    spec:
+      containers:
+      - name: pi  # The name of the container within the pod
+        image: perl:5.34.0
+        command: ["perl", "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+      restartPolicy: Never  # Possible values: Never, OnFailure
+  backoffLimit: 4

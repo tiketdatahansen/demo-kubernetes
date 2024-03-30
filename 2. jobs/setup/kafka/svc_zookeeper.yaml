@@ -1,0 +1,13 @@
+# This manifest is used to expose the Zookeeper service so that it can be accessed by the Kafka service.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+spec:
+  selector:
+    app: zookeeper
+  ports:
+    - protocol: TCP
+      port: 2181  # The port which the service is listening on.
+      targetPort: 2181  # The port which the pods are listening on.

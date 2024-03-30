@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-shared-network
+spec:
+  containers:
+  - name: echoserver-1
+    image: tiketdatahansen/echoserver:1.0
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+  - name: echoserver-2
+    image: tiketdatahansen/echoserver:1.0
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+
+
+# This manifests will spawn 2 echoserver containers on port 8000 and 80001
+# Try to exec into the pod and hit the following endpoints
+# - GET http://localhost:8000/echo
+# - GET http://localhost:8001/echo
+# - POST http://localhost:8000/relay -> {"url": "http://localhost:8001/echo"} (content-type: application/json)
+
+# This pod will show that the containers can communicate with each other via `localhost`

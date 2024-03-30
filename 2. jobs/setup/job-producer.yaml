@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-producer-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: kafka-producer-job
+        image: tiketdatahansen/demo_kafka_producer:1.0.1
+        args: ["-n", "10", "-b", "kafka:9092", "-t", "my_topic"]
+      restartPolicy: Never

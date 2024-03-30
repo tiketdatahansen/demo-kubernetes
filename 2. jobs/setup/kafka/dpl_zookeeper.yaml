@@ -1,0 +1,24 @@
+# This manifest is used to deploy a single Zookeeper instance.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper  # The unique identifier of the deployment within the namespace.
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper  # The label to match in order to select the pods managed by this deployment.
+  template:
+    metadata:
+      labels:
+        app: zookeeper  # The label applied to the pods.
+    spec:
+      containers:
+      - name: zookeeper
+        image: docker.io/bitnami/zookeeper:3.6.3
+        ports:
+        - containerPort: 2181  # The port which zookeeper is listening on.
+        env:
+        - name: ALLOW_ANONYMOUS_LOGIN
+          value: "yes"

@@ -1,0 +1,13 @@
+# This file is used to create a service for the kafka pod
+
+apiVersion: v1
+kind: Service 
+metadata:
+  name: kafka
+spec:
+  selector:
+    app: kafka
+  ports:
+    - protocol: TCP
+      port: 9092  # The port which the service is listening on.
+      targetPort: 9092  # The port which the pods are listening on.
