@@ -1,0 +1,5 @@
+MAJOR = "2"
+MINOR = "0"
+
+VERSION = ".".join((MAJOR, MINOR))
+API_VERSION = f"v{MAJOR}"

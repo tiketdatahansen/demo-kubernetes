@@ -9,3 +9,6 @@ spec:
     command: ["echo"]
     args: ["Hello World"]
   restartPolicy: Never  # possible values: Always, OnFailure, Never
+
+
+# This manifests will create a pod that runs `echo "Hello World"`

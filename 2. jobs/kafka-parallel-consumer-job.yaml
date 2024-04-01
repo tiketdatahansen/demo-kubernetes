@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-parallel-consumer-job
+spec:
+  completions: 3
+  parallelism: 3
+  template:
+    spec:
+      containers:
+      - name: kafka-parallel-consumer-job
+        image: tiketdatahansen/k8s_demo_python:1.0
+        command: 
+        - python
+        - -uc
+        - |
+          from kafka import KafkaConsumer
+
+          consumer_group = "consumer-0"
+          consumer = KafkaConsumer(
+            "my_topic", 
+            bootstrap_servers=["kafka:9092"], 
+            group_id=consumer_group
+          )
+          print("Consumer group:", consumer_group)
+
+          while True:
+            message = consumer.poll(timeout_ms=75000)
+              
+            if not message:
+              break
+            
+            for _, messages in message.items():
+              for msg in messages:
+                print(msg.value)
+          
+          print("Exiting...")
+      restartPolicy: Never
+
+# This manifest will create a Job that consumes messages from a Kafka topic. The job will run 3 pods in parallel, each consuming messages from the topic "my_topic". The pods will exit if there are no new messages for 75 seconds.
+
+# Pre-requisite:
+# - Spawn a kafka server using `kubectl apply -f setup/kafka/`
+# - Port forward the Kafka UI using `kubectl port-forward service/kafka-ui 5000:5000`
+# - Setup a connection to the broker `kafka:9092` on Kafka UI 
+# - Create a topic named "my_topic" with 3 partitions using the Kafka UI
+# - Create a cronjob to produce dummy message periodically using `kubectl apply -f setup/kafka-producer-cron.yaml`
+# - Start the consumer

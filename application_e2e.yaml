@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app-v1
+  template:
+    metadata:
+      labels:
+        app: my-app-v1
+    spec:
+      containers:
+      - name: echoserver
+        image: tiketdatahansen/echoserver:1.0
+        command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ROOT_PATH
+          value: /v1
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: my-app-v1-svc
+spec:
+  selector:
+    app: my-app-v1
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 8000
+      # nodePort: 31637
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app-v2
+  template:
+    metadata:
+      labels:
+        app: my-app-v2
+    spec:
+      containers:
+      - name: echoserver
+        image: tiketdatahansen/echoserver:2.0
+        command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ROOT_PATH
+          value: /v2
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: my-app-v2-svc
+spec:
+  selector:
+    app: my-app-v2
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 8000
+      # nodePort: 31638
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: my-app-svc.mydomain.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: /v1
+            backend:
+              service:
+                name: my-app-v1-svc
+                port:
+                  number: 5000
+          - pathType: Prefix
+            path: /v2
+            backend:
+              service:
+                name: my-app-v2-svc
+                port:
+                  number: 5000

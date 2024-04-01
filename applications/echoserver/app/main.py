@@ -1,45 +1,25 @@
-import requests
+import os
 import logging
 
 logging.getLogger().setLevel(logging.DEBUG)
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)-15s %(levelname)s - %(message)s"
+)
 
-from fastapi import FastAPI, Request
-from schema import RelayRequest
+from fastapi import FastAPI
+from fastapi.middleware import Middleware
 
-app = FastAPI()
+from middleware import HTTPLogger
+from router import router
+from version import VERSION
 
+root_path = os.getenv("ROOT_PATH", "/").rstrip("/")
+logging.info(f"Root path: '{root_path}'")
 
-@app.get("/echo")
-async def echo(req: Request):
-    return {
-        "client_host": req.client.host,
-        "method": req.method,
-        "url": req.url._url,
-        "headers": req.headers,
-    }
-
-
-@app.post("/relay")
-async def relay(req: RelayRequest):
-    logging.info(f"Relaying request: {str(req)}")
-
-    resp = requests.request(
-        req.method,
-        req.url,
-        headers=req.headers,
-        data=req.data,
-    )
-
-    return {
-        "request": {
-            "url": req.url,
-            "method": req.method,
-            "headers": req.headers,
-            "data": req.data,
-        },
-        "response": {
-            "status": resp.status_code,
-            "headers": dict(resp.headers),
-            "body": resp.text,
-        },
-    }
+app = FastAPI(
+    version=VERSION,
+    middleware=[Middleware(HTTPLogger)],
+    openapi_url=f"{root_path}/openapi.json",
+    docs_url=f"{root_path}/docs",
+)
+app.include_router(router, prefix=root_path)

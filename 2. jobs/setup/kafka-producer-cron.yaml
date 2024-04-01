@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kafka-producer-cron
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: kafka-producer-cron
+            image: tiketdatahansen/kafka_producer:1.0
+            args: ["-n", "5", "-b", "kafka:9092", "-t", "my_topic"]
+          restartPolicy: Never
+
+# This manifest will create a CronJob that will produce messages to a Kafka topic every minute. The job will run a container that produces 5 messages to the topic "my_topic" each time it runs.

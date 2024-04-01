@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: replication-dpl  # The unique identifier of the deployment within the namespace.
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: replication-dpl  # The label to match in order to select the pods managed by this deployment.
+  template:
+    metadata:
+      labels:
+        app: replication-dpl  # The label applied to the pods.
+    spec:
+      containers:
+      - name: echoserver
+        image: tiketdatahansen/echoserver:2.0
+        command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+        ports:
+        - containerPort: 8000  # The port which application is listening on.
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: replication-svc
+spec:
+  selector:
+    app: replication-dpl
+  ports:
+    - protocol: TCP
+      port: 8000  # The port which the service is listening on.
+      targetPort: 8000  # The port which the pods are listening on.

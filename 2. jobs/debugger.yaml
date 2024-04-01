@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: debugger
+spec:
+  template:
+    spec:
+      containers:
+      - name: debugger
+        image: tiketdatahansen/k8s_demo_python:1.0
+        command: ["tail", "-f", "/dev/null"]
+      restartPolicy: Never
+      

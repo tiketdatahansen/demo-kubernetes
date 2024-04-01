@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: demo-failed-job
+spec:
+  completions: 3
+  completionMode: Indexed
+  backoffLimit: 2
+  template:
+    spec:
+      containers:
+      - name: demo-failed-job
+        image: python:3.8-slim
+        command: 
+        - python
+        - -c
+        - |
+          import os
+          pod_index = int(os.environ.get("JOB_COMPLETION_INDEX", -1))
+          print("Pod Index:", pod_index)
+          print(1 / pod_index)
+      restartPolicy: Never
+      
+
+
+# This manifests demonstrates how to create an Indexed Job that will fail due to max backoff limit being reached. Each pod will attempt to divide 1 by its index, which will cause a ZeroDivisionError when the index is 0. The backoff limit is set to 2, so the job will fail after the second retry pod fails.
